@@ -1,2 +1,2 @@
-# Zoom_Application
-Imitate Zoom Service
+# Noom
+Zoom Clone using NodeJS, WebRTC and Websockets
