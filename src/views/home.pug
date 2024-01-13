@@ -5,10 +5,28 @@ html(lang="en")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title Noom
         link(rel="stylesheet", href="https://unpkg.com/mvp.css")
+        base(href="/")
+
     body 
         header 
             h1 KyoungYeob Zoom
         main 
             h2 Welcome to Zoom
             
-        script(src="/public/js/app.js") 
+    //- script(src="../public/js/app.js") 
+    script. 
+        alert('hi!')
+
+        const socket = new WebSocket(`ws://${window.location.host}`);
+
+        socket.addEventListener("open",() => {
+            console.log("Connected to Server OOOOO");
+        });
+
+        socket.addEventListener("message", (message) => {
+            console.log("Just Got this: ", message, "from the Server");
+        });
+
+        socket.addEventListener("close",() => {
+            console.log("Connect from Server XXXXX");
+        }); 
