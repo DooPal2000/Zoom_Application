@@ -7,8 +7,16 @@ const app = express();
 const __dirname = path.resolve();
 
 app.set('view engine', "pug");
-app.set("views", __dirname + "/views");
-app.use("/public", express.static(__dirname + "/src/public"));
+
+if (process.env.NODE_ENV === "development") {
+    app.set("views", __dirname + "/src/views");
+    app.use("/public", express.static(__dirname + "/src/public"));
+
+} else {
+    app.set("views", __dirname + "/views");
+    app.use("/public", express.static(__dirname + "/public"));
+}
+  
 
 app.get("/",(req,res) => {
     res.render("home")
@@ -26,14 +34,29 @@ const server = http.createServer(app);
 // const wss = new WebSocket.Server({ server });
 const wss = new WebSocketServer({ server });
 
+const sockets = [];
+
 wss.on("connection", (socket) => {
-    console.log("Connected to Browser");
-    socket.send("hello!")
-    console.log(socket);
+    sockets.push(socket);
+    socket["nickname"] = "Anon";
+    console.log("Connected to Browser✔️");
+    socket.on("close", ()=> { console.log("Disconnected from the Browser ❌") });
+    socket.on("message", msg =>  {
+        const message = JSON.parse(msg);
+        switch(message.type){ 
+            case "new_message":
+                //forEach를 통해, 여러 사용자 접속 + 메세지 전송시 모든 소켓에게 메세지 전송
+                sockets.forEach((aSocket) => aSocket.send(`${socket.nickname} : ${message.payload} `));
+                break;
+            case "nickname":
+                socket["nickname"] = message.payload;
+                console.log(message.payload);
+                break;
+        }
+        //socket.send(message);
+        //console.log(message.toString());
+    });
+    //console.log(socket);
 });
 
 server.listen(3000,handleListen);
-
-
-
-// app.listen(3000, handleListen);
