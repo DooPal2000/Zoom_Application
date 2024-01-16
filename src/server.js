@@ -1,5 +1,8 @@
 import http from "http";
-import WebSocket, {WebSocketServer} from "ws";
+import { Server } from 'socket.io';
+
+// import WebSocket, {WebSocketServer} from "ws";
+
 import express from "express";
 import path from "path";
 
@@ -29,34 +32,19 @@ app.get("/*", (req,res) => {
 
 const handleListen = () => console.log('Listening on port 3000');
 
-//http 서버와 webSocket 서버를 둘 다 만든 경우임
-const server = http.createServer(app);
-// const wss = new WebSocket.Server({ server });
-const wss = new WebSocketServer({ server });
+const httpServer = http.createServer(app);
+const wsServer =  new Server(httpServer);
 
-const sockets = [];
-
-wss.on("connection", (socket) => {
-    sockets.push(socket);
-    socket["nickname"] = "Anon";
-    console.log("Connected to Browser✔️");
-    socket.on("close", ()=> { console.log("Disconnected from the Browser ❌") });
-    socket.on("message", msg =>  {
-        const message = JSON.parse(msg);
-        switch(message.type){ 
-            case "new_message":
-                //forEach를 통해, 여러 사용자 접속 + 메세지 전송시 모든 소켓에게 메세지 전송
-                sockets.forEach((aSocket) => aSocket.send(`${socket.nickname} : ${message.payload} `));
-                break;
-            case "nickname":
-                socket["nickname"] = message.payload;
-                console.log(message.payload);
-                break;
-        }
-        //socket.send(message);
-        //console.log(message.toString());
+wsServer.on("connection", socket => {
+    // ⚠️ done() 함수는 백엔드에서 실행 x 프론트에서 o 실행 되는 것이다 (헷갈림 주의)
+    // 결과적으로, "backend done" 문구는 브라우저 콘솔에 출력된다.
+    socket.on("enter_room", (roomName, done) => {
+        console.log(roomName);
+        setTimeout(() => {
+            done(`hello ${roomName}'s user, It's me. (from the backend)`); 
+        }, 5000);
     });
-    //console.log(socket);
 });
 
-server.listen(3000,handleListen);
+
+httpServer.listen(3000,handleListen);

@@ -1,0 +1,39 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title K-zoom
+        link(rel="stylesheet", href="https://unpkg.com/mvp.css")
+        base(href="/")
+
+    body 
+        header 
+            h1 Zoom 
+        main 
+            form#nick
+                input(type="text", placeholder ="choose a nickname", required)
+                button Save
+            ul             
+            form#message
+                input(type="text", placeholder ="write a msg", required)
+                button Send
+
+            
+        script(src="/public/js/app.js") 
+    //- script. 
+    //-     alert('hi!')
+
+    //-     const socket = new WebSocket(`ws://${window.location.host}`);
+
+    //-     socket.addEventListener("open",() => {
+    //-         console.log("Connected to Server OOOOO");
+    //-     });
+
+    //-     socket.addEventListener("message", (message) => {
+    //-         console.log("Just Got this: ", message, "from the Server");
+    //-     });
+
+    //-     socket.addEventListener("close",() => {
+    //-         console.log("Connect from Server XXXXX");
+    //-     }); 
