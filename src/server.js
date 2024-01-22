@@ -21,28 +21,22 @@ if (process.env.NODE_ENV === "development") {
     app.use("/public", express.static(__dirname + "/public"));
 }
 
+
+
 app.get("/", (_, res) => res.render("home"));
 app.get("/*", (_, res) => res.redirect("/"));
   
 
-
-
-
 const handleListen = () => console.log('Listening on port 3000');
 
 const httpServer = http.createServer(app);
-const wsServer = new Server(httpServer, {
-    cors: {
-      origin: ["https://admin.socket.io"],
-      credentials: true
-    }
-});
-
-instrument(wsServer, {
-    auth: false,
-    mode: "development",
-});
-  
-  
+const wsServer = new Server(httpServer);
+wsServer.on("connection", socket => {
+    socket.on("join_room", (roomName,done) => {
+        socket.join(roomName);
+        done();
+        socket.to(roomName).emit("welcome");
+    })
+})
 
 httpServer.listen(3000, handleListen);

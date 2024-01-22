@@ -10,13 +10,18 @@ html(lang="en")
     body 
         header 
             h1 Zoom (KyoungYeob)
-        main 
-            div#myStream
-                video#myFace(autoplay,playsinline, width="400", height="400")
-                button#mute Mute
-                button#camera Turn Camera off
-                select#cameras
-                    
+        main
+            div#welcome 
+                form(action="") 
+                    input(placeholder="room name",required, type="text")
+                    button Enter room
+            div#call
+                div#myStream
+                    video#myFace(autoplay,playsinline, width="400", height="400")
+                    button#mute Mute
+                    button#camera Turn Camera off
+                    select#cameras
+                        
 
 
         script(src="/socket.io/socket.io.js") 
