@@ -13,6 +13,7 @@ let myStream;
 let muted = false;
 let cameraOff = false;
 let roomName;
+
 /** @type {RTCPeerConnection} */
 let myPeerConnection;
 
@@ -89,8 +90,15 @@ function handleCameraClick(){
         cameraOff = true;
     }
 }
-async function handleCameraChange (){
+async function handleCameraChange(){
     await getMedia(camerasSelect.value);
+    if(myPeerConnection){
+        const videoTrack = myStream.getVideoTracks()[0];
+        const videoSender = myPeerConnection
+        .getSenders()
+        .find(sender => sender.track.kind === "video");
+        videoSender.replaceTrack(videoTrack);
+    }
 }
 muteBtn.addEventListener("click", handleMuteClick);
 cameraBtn.addEventListener("click", handleCameraClick);
@@ -107,6 +115,7 @@ async function initCall(){
     await getMedia();
     makeConnection();
 }
+
 async function handleWelcomeSubmit(event){
     event.preventDefault();
     const input = welcomeForm.querySelector("input");
@@ -141,7 +150,6 @@ socket.on("answer", answer => {
 
 });
 
-
 socket.on("ice", ice => {
     console.log("received candidate");
     myPeerConnection.addIceCandidate(ice);
@@ -149,8 +157,21 @@ socket.on("ice", ice => {
 
 // RTC Code
 function makeConnection(){
-    myPeerConnection = new RTCPeerConnection();
+    myPeerConnection = new RTCPeerConnection({
+        iceServers: [
+          {
+            urls: [
+              "stun:stun.l.google.com:19302",
+              "stun:stun1.l.google.com:19302",
+              "stun:stun2.l.google.com:19302",
+              "stun:stun3.l.google.com:19302",
+              "stun:stun4.l.google.com:19302",
+            ],
+          },
+        ],
+      });
     myPeerConnection.addEventListener("icecandidate", handleIce);
+    myPeerConnection.addEventListener("addstream", handleAddStream);
     myStream
         .getTracks()
         .forEach((track) =>  myPeerConnection.addTrack(track, myStream));
@@ -159,5 +180,10 @@ function makeConnection(){
 function handleIce(data){
     socket.emit("ice", data.candidate, roomName);
     console.log("got ice candidate");
-    console.log(data);
+}
+
+function handleAddStream(data){
+    const peerFace = document.getElementById("peerFace");    
+    console.log("Peer's Stream", data.stream);
+    peerFace.srcObject = data.stream;
 }
